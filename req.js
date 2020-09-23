@@ -47,9 +47,7 @@ class Request {
 
   send(cb) {
     this.request = PROTOCOLS[this.ssl].request(this._buildOpts(), (res) => this._call(res, cb));
-    if (this.body) this.request.write(JSON.stringify(this.body), (err) => {
-      if (err) console.log(err)
-    });
+    if (this.body) this.request.write(JSON.stringify(this.body));
     if (this.status === STATUS.failed) setTimeout(this.send(), 1000);
     this.request.end();
     return this.response;
