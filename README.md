@@ -30,6 +30,13 @@ req.setMethod("POST");
 req.setPath("/api/v2/users");
 req.setHeader("Authorization", `Bearer ${tok}`)
 
+req.setBody({
+  username: "user1",
+  filter: {
+    before: moment().subtract(1, "year"),
+  }
+})
+
 req.send(res => console.log(res))
 # { message:  "Hello, world" }
 ```
