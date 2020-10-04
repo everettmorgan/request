@@ -17,7 +17,7 @@ const STATUS = {
   "idle": 0,
   "fetching": 1,
   "done": 2,
-  "failed": 3
+  "failed": 3,
 }
 
 const SSL = {
@@ -32,37 +32,28 @@ const RESPONSE_TYPES = {
 }
 
 class Request {
-  constructor(path) {
+  constructor(baseUrl) {
     this.method = "GET"
-    this.baseUrl = process.env.VUE_APP_API_BASE_URL;
-    this.port = PORTS[SSL.on];
-    this.path = path;
-    this.status = STATUS.idle;
+    this.baseUrl = baseUrl;
+    this.path = "/";
     this.headers = {};
     this.body = {};
-    this.ssl = SSL.on;
-    this.responseFormat = RESPONSE_TYPES.json;
     this.errors = [];
+    
+    this.ssl = SSL.on;
+    this.port = PORTS[SSL.on];
+    this.status = STATUS.idle;
+    this.responseFormat = RESPONSE_TYPES.json;
   }
 
   send(cb) {
     this.request = PROTOCOLS[this.ssl].request(this._buildOpts(), (res) => this._call(res, cb));
     if (this.body) this.request.write(JSON.stringify(this.body));
-    if (this.status === STATUS.failed) setTimeout(this.send(), 1000);
     this.request.end();
-    return this.response;
   }
 
-  setBaseUrl(url) {
-    if (url.match(/(?=https?)/)) {
-      url = url.split('//')[1]
-    }
-
-    if (url.match(/(?=\/)/)) {
-      url = url.split('/')[0]
-    }
-
-    this.baseUrl = url;
+  setPath(url) {
+    this.path = url;
     return this;
   }
 
@@ -81,7 +72,7 @@ class Request {
       case "UPDATE":
       case "DELETE":
       case "OPTIONS":
-        this.method = method
+        this.method = method;
         break;
       default:
         break;
@@ -100,8 +91,8 @@ class Request {
     return this;
   }
 
-  setFormParam(key, value) {
-    this.form.set(key, value)
+  setURLParam(key, value) {
+    this.params.append(key, value)
     return this;
   }
 
@@ -126,7 +117,7 @@ class Request {
       port: this.port,
       path: this.path,
       method: this.method,
-      path: this.path,
+      path: (!this.params ? this.path : this.path + "?" + this.params),
       protocol: ( this.ssl ? "https:" : "http:" ),
     }
   }
@@ -155,9 +146,17 @@ class Request {
         pos += data[i].length;
       }
 
+      this.status = STATUS.failed;
       this.response = this.responseFormat(buf)
-      if (cb) cb(this.response);
+      if (cb) cb({ 
+        status: response.statusCode, 
+        response: this.response,
+      });
     })
+  }
+
+  _retry() {
+    setTimeout(this.send, 1000); 
   }
 }
 
