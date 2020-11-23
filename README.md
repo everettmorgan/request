@@ -15,21 +15,20 @@
 
 ```javascript
 const Request = require('request');
+const req = new Request("domain.com");
 
-const req = new Request("dev.seyv.io");
-
-req.setPort(8080)
+req.setPort(8080);
 req.setMethod("POST");
-req.setPath("/api/v2/users");
-req.setHeader("Authorization", `Bearer ${tok}`)
+req.setPath("/api/v2/transactions");
+req.setHeader("Authorization", `Bearer ${tok}`);
 
 req.setBody({
-  username: "user1",
+  user: "user@example.com",
   filter: {
     before: moment().subtract(1, "year"),
   }
 })
 
-req.send(res => console.log(res))
+req.send(res => console.log(res));
 # { message:  "Hello, world" }
 ```
