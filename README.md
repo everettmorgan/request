@@ -1,11 +1,4 @@
 # Req-uaza
-## Why this and not node-fetch?
-Two reasons: 1) it's a much more straightforward and intuitive (esp given our current needs), and 2) why not? It was a little project that I decided to take on and I liked the outcome. We're now using this module internally at Seyv and will continue to expand upon it as needed.
-
-### Our main goals:
-- intuitive, shouldn't _really_ require documentation
-- automatic retrying, we're in the finance business, not the streaming business
-- as lightweight as possible, bells and whistles are pointless here
 
 ## Methods
 - setPath(path string) : sets the path for the request, defaults to `/`
